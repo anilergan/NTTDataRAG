@@ -1,0 +1,23 @@
+[project]
+name = "nttdatarag"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "anil",email = "ergananil@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pymupdf (>=1.26.3,<2.0.0)",
+    "openai (>=1.97.0,<2.0.0)",
+    "tqdm (>=4.67.1,<5.0.0)",
+    "numpy (>=2.3.1,<3.0.0)",
+    "jsonlines (>=4.0.0,<5.0.0)",
+    "faiss-cpu (>=1.11.0.post1,<2.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
