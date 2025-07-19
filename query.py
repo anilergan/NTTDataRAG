@@ -39,7 +39,11 @@ while True:
     distances, indices = index.search(query_embedding, k=5)
     
     retrieved_chunks = [chunks[i] for i in indices[0]]
-    context = "\n\n".join(f"(Page {c['page']} of {c['source']}):\n{c['content']}" for c in retrieved_chunks)
+    context = "\n\n".join(
+        f"[{c['main_title_of_page']} > {c['main_subtitle_of_page']} > {c['header']}] (Page {c['page']})\n{c['content']}"
+        for c in retrieved_chunks
+    )
+
 
     # 🔹 Ask GPT
     messages = [
@@ -58,7 +62,10 @@ while True:
 
     # 🔹 Print sources
     print("\n📚 Sources:")
-    for chunk in retrieved_chunks:
-        print(f"📄 {chunk['source']} (Page {chunk['page']})")
+    for i, chunk_idx in enumerate(indices[0]):
+        chunk = chunks[chunk_idx]
+        similarity = 1 - distances[0][i]
+        print(f"📄 {chunk['source']} | Page {chunk['page']} | {chunk['main_title_of_page']} > {chunk['main_subtitle_of_page']} > {chunk['header']} — 📈 Similarity: {similarity:.2f}")
+
 
     print("\n👉 Do you have another question? (Press Enter to exit)")

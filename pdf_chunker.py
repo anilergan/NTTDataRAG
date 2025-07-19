@@ -1,94 +1,213 @@
-# pdf_chunker.py
-import os
-import json
 import fitz  # PyMuPDF
+import json
 import re
-import unicodedata
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LTTextContainer, LTChar
 
-DATA_DIR = "data"
-RAW_DATA_DIR = "data/raw"
-CHUNK_OUTPUT_PATH = os.path.join(DATA_DIR, "chunks.jsonl")
-CHUNK_SIZE = 1200
-OVERLAP = 200
+# === Ayarlar ===
+PDF_PATH = r"data\raw\sr_2024_cb_v.pdf"
+OUTPUT_PATH = "data\chunks.jsonl"
+INCLUDED_PAGES = [page for page in range(7, 24)] +\
+                 [page for page in range(25, 35)] +\
+                 [36, 37] +\
+                 [page for page in range(39, 42)] +\
+                 [44] +\
+                 [page for page in range(46, 50)]
+PAGE_OFFSET = 1
+
+SECTION_HEADERS = ["Social issues", "Business need", "Solution", "Impact"]
+HIGHLIGHT_SIZE_THRESHOLD = 15
 
 def clean_text(text: str) -> str:
-    # Unicode normalization
-    text = unicodedata.normalize("NFKC", text)
+    return re.sub(r'\s*\n\s*', ' ', text).strip()
 
-    # Invisible characters & weird unicode artifacts
-    text = text.replace("\u200b", "").replace("\xa0", " ")
+def is_wide_block(block, page_width):
+    x0, y0, x1, y1 = block[:4]
+    return (x1 - x0) > 0.7 * page_width
 
-    # Remove control characters
-    text = ''.join(ch for ch in text if ch.isprintable())
+def is_bottom_block(block, page_height):
+    y0 = block[1]
+    return y0 > 0.7 * page_height
 
-    # Remove multiple spaces and newlines
-    text = re.sub(r"[ \t]+", " ", text)
-    text = re.sub(r"\n\s*\n", "\n", text).strip()
+def classify_layout_blocks(text_blocks, page_width, page_height):
+    layout_blocks = {
+        "full_width_top": [],
+        "col_1": [],
+        "col_2": [],
+        "col_3": [],
+        "bottom_full": []
+    }
+    for block in text_blocks:
+        x0, y0, x1, y1, *_ = block
+        if y1 < 200:
+            layout_blocks["full_width_top"].append(block)
+        elif is_bottom_block(block, page_height) and is_wide_block(block, page_width):
+            layout_blocks["bottom_full"].append(block)
+        elif x1 < page_width / 3:
+            layout_blocks["col_1"].append(block)
+        elif x0 > page_width * 2 / 3:
+            layout_blocks["col_3"].append(block)
+        else:
+            layout_blocks["col_2"].append(block)
+    return layout_blocks
 
-    return text
 
-def extract_blocks_ordered(page: fitz.Page) -> str:
-    """
-    Sayfa içindeki text bloklarını (bbox, text) alır,
-    yukarıdan aşağı → soldan sağ sıralar ve tek string döner.
-    """
-    blocks = page.get_text("blocks")
-    # blocks: (x0, y0, x1, y1, "text", block_no, block_type)
-    blocks = sorted(
-        [b for b in blocks if b[4].strip()],
-        key=lambda b: (round(b[1], 1), round(b[0], 1))
-    )
-    ordered_text = "\n".join(b[4].strip() for b in blocks)
-    return ordered_text
+def extract_section(header, all_blocks, content_blocks=None):
+    content = []
+    found = False
+    if content_blocks is None:
+        content_blocks = all_blocks
 
+    for block in all_blocks:
+        text = clean_text(block[4])
+        if not text:
+            continue
+        if text.strip() == header:
+            found = True
+            continue
+        if found and text in SECTION_HEADERS:
+            break
+        if found and block in content_blocks:
+            content.append(text)
 
-def extract_chunks_from_pdf(pdf_path: str,
-                            chunk_size: int = CHUNK_SIZE,
-                            overlap: int = OVERLAP) -> list[dict]:
-    """
-    Bir PDF dosyasını okuyup blok sıralı metni chunk'lara böler.
-    """
+    return ' '.join(content).strip() if content else None
+
+def extract_filtered_spans(page, included_pages, allowed_colors={0, 8421504}):
+    text_blocks = []
+    page_dict = page.get_text("dict")
+
+    for block in page_dict["blocks"]:
+        if block.get("type") != 0:
+            continue
+        for line in block.get("lines", []):
+            for span in line.get("spans", []):
+                text = span["text"].strip()
+                if not text:
+                    continue
+
+                y0 = span["bbox"][1]
+                x0, y0, x1, y1 = span["bbox"]
+
+                # Section başlıkları
+                if text in SECTION_HEADERS and (page.number + PAGE_OFFSET) in included_pages:
+                    text_blocks.append((x0, y0, x1, y1, text, span["size"]))
+                    continue
+
+                # Sayfa başlığı veya alt başlığı
+                if y0 < 100:
+                    text_blocks.append((x0, y0, x1, y1, text, span["size"]))
+                    continue
+
+                # İçerik için filtre
+                if span.get("color") not in allowed_colors:
+                    continue
+                if span.get("size", 0) < 6 or span.get("size", 0) > 25:
+                    continue
+                if len(text.split()) < 2:
+                    continue
+
+                text_blocks.append((x0, y0, x1, y1, text, span["size"]))
+    return text_blocks
+
+def extract_chunks(pdf_path, included_pages):
     doc = fitz.open(pdf_path)
-    chunks: list[dict] = []
+    all_chunks = []
 
-    for page_idx, page in enumerate(doc):
-        text = extract_blocks_ordered(page)
-        text = clean_text(text)
-        start = 0
-        while start < len(text):
-            end = start + chunk_size
-            chunk_text = text[start:end].strip()
-            if chunk_text:
-                chunks.append({
-                    "source": os.path.basename(pdf_path),
-                    "page": page_idx + 1,
-                    "content": chunk_text
-                })
-            start = end - overlap  # overlap kadar geri kay
+    for page in doc:
+        page_label = page.number + PAGE_OFFSET
+        if page_label not in included_pages:
+            continue
 
-    doc.close()
-    return chunks
+        text_blocks = extract_filtered_spans(page, included_pages)
+        text_blocks = sorted(text_blocks, key=lambda b: (b[1], b[0]))
+        page_width, page_height = page.rect.width, page.rect.height
+        layout_blocks = classify_layout_blocks(text_blocks, page_width, page_height)
+
+        # Başlıklar
+        top_blocks = layout_blocks["full_width_top"]
+        page_title = page_subtitle = ""
+        if top_blocks:
+            top_blocks_sorted = sorted(top_blocks, key=lambda b: (-b[5], b[1]))
+            title_font = top_blocks_sorted[0][5]
+            title_block = next((b for b in top_blocks_sorted if b[5] == title_font), None)
+            page_title = clean_text(title_block[4]) if title_block else ""
+            subtitle_block = next((b for b in top_blocks_sorted if b[5] < title_font), None)
+            page_subtitle = clean_text(subtitle_block[4]) if subtitle_block else ""
+
+        def create_chunk(header, content):
+            if content:
+                return {
+                    "main_title_of_page": page_title,
+                    "main_subtitle_of_page": page_subtitle,
+                    "header": header,
+                    "content": content,
+                    "page": page_label,
+                    "source": "sr_2024_cb_v.pdf"
+                }
+
+        all_blocks = (
+            layout_blocks["full_width_top"]
+            + layout_blocks["col_1"]
+            + layout_blocks["col_2"]
+            + layout_blocks["col_3"]
+            + layout_blocks["bottom_full"]
+        )
+
+        # Section Extraction
+        social_text = extract_section("Social issues", all_blocks, layout_blocks["full_width_top"])
+        business_text = extract_section("Business need", all_blocks, layout_blocks["col_1"])
+        solution_text = extract_section("Solution", all_blocks, layout_blocks["col_2"] + layout_blocks["col_3"])
+
+        # Impact Section
+        impact_text_col1 = extract_section("Impact", all_blocks, layout_blocks["col_1"])
+        impact_text_bottom = extract_section("Impact", all_blocks, layout_blocks["bottom_full"])
+        final_impact = impact_text_col1 or impact_text_bottom
+        impact_region = layout_blocks["col_1"] if impact_text_col1 else layout_blocks["bottom_full"]
+
+        # 🔥 Nokta atışı metrik tespiti — sayısal, zamansal, oransal ifadeler (tüm sayfada)
+        highlight_texts = []
+        for b in text_blocks:
+            text = clean_text(b[4])
+            size = b[5]
+
+            if not text or not isinstance(text, str):
+                continue
+
+            if size >= 13 and re.search(r"(approx|%|year|month|employees|rate|reduction|increase|minimum|as of)", text.lower()):
+                highlight_texts.append(text)
+
+        # Dipnotlar
+        note_blocks = [
+            clean_text(b[4]) for b in impact_region
+            if b[5] < 9 and len(b[4]) > 20
+        ]
+
+        # Final impact'e highlight + note ekle
+        if final_impact:
+            if highlight_texts:
+                final_impact += f" (highlighted: {', '.join(highlight_texts)})"
+            if note_blocks:
+                final_impact += f" [note: {' '.join(note_blocks)}]"
+
+        # Chunk Ekleme
+        for header, content in [
+            ("Social issues", social_text),
+            ("Business need", business_text),
+            ("Solution", solution_text),
+            ("Impact", final_impact)
+        ]:
+            chunk = create_chunk(header, content)
+            if chunk:
+                all_chunks.append(chunk)
+
+    return all_chunks
 
 
-def chunk_all_pdfs(data_dir: str = RAW_DATA_DIR) -> None:
-    """
-    data_dir altındaki tüm PDF’leri chunk'lar ve çıktıyı .jsonl olarak kaydeder.
-    """
-    all_chunks: list[dict] = []
 
-    for fname in os.listdir(data_dir):
-        if fname.lower().endswith(".pdf"):
-            pdf_path = os.path.join(data_dir, fname)
-            print(f"📄 Processing: {fname}")
-            all_chunks.extend(extract_chunks_from_pdf(pdf_path))
-
-    # JSON Lines dosyası olarak yaz
-    with open(CHUNK_OUTPUT_PATH, "w", encoding="utf-8") as f:
-        for chunk in all_chunks:
-            f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
-
-    print(f"\n✅ {len(all_chunks)} chunks written to {CHUNK_OUTPUT_PATH}")
-
-
+# === Ana Çalıştırıcı ===
 if __name__ == "__main__":
-    chunk_all_pdfs()
+    chunks = extract_chunks(PDF_PATH, INCLUDED_PAGES)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        for chunk in chunks:
+            f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
+    print(f"✅ {len(chunks)} chunks extracted → {OUTPUT_PATH}")

@@ -31,10 +31,15 @@ def main():
 
     with jsonlines.open(input_file, "r") as reader:
         for obj in reader:
-            texts.append(obj["content"])
+            texts.append(
+                f"{obj['main_title_of_page']} | {obj['main_subtitle_of_page']} | {obj['header']}: {obj['content']}"
+            )
             metadatas.append({
                 "source": obj["source"],
-                "page": obj["page"]
+                "page": obj["page"],
+                "header": obj["header"],
+                "main_title": obj["main_title_of_page"],
+                "main_subtitle": obj["main_subtitle_of_page"]
             })
 
     vectors = []

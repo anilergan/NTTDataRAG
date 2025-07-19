@@ -1,47 +1,38 @@
-# ✅ 1. Net şekilde cevaplanabilecek 5 soru:
+# 📄 RAG QA Evaluation Questions – NTT Data 2024 Case Book
 
-1. NTT Data'nın karbon nötr olma hedef yılı nedir?
+This document contains a set of evaluation questions grouped into three difficulty levels. These are designed to test the effectiveness of a RAG (Retrieval-Augmented Generation) system built on top of the **NTT Data 2024 Case Book**.
 
-2. 2023 yılında NTT DATA'nın toplam elektrik tüketimi ne kadardır?
+---
 
-3. NTT DATA, “Green Innovation” faaliyetleri için hangi yılda 'Green Innovation Office' birimini kurmuştur?
+## 🟢 Easy Questions
+> These answers are directly stated in the chunks and can be found word-for-word or nearly word-for-word.
 
-4. NTT DATA, “Environment and Energy Vision 2040” vizyonunu hangi yıl duyurmuştur?
+1. What percentage of manufacturing companies have implemented digital transformation aimed at optimizing overall manufacturing functions?
+2. What is causing the acceleration of population decline in Japan?
+3. What are the main goals of the Smart AI Agent project?
+4. Which AI approach was used to support medical staff in identifying anomalies in patient behavior?
+5. What was the reported productivity improvement after implementing the Smart AI Agent?
 
-5. NTT DATA'nın 2024 yılı itibarıyla Scope 1 ve Scope 2 emisyonları toplamı ne kadardır?
+---
 
-# 🌀 2. Bağlamsal, dolaylı ilişkiyle çıkarılabilecek 5 soru:
+## 🟡 Medium Questions
+> These answers require some inference or contextual understanding. They are not exact matches to any sentence in the chunks but are answerable based on them.
 
-1. NTT DATA’nın sürdürülebilirlik stratejisinde “çevresel riskler”in yönetimi neden önemli bir başlıktır?
+1. Why might Japanese companies lag behind the US in adopting generative AI despite its known productivity benefits?
+2. How does the Smart Factory project contribute to solving issues caused by declining labor force?
+3. What role does AI play in addressing social issues related to aging populations?
+4. In what ways does digital transformation affect operational efficiency in manufacturing settings?
+5. Why is it important to detect subtle changes in patient behavior in elderly care using AI?
 
-2. NTT DATA, veri merkezlerinde enerji verimliliğini artırmak için hangi tür teknik önlemleri almaktadır?
+---
 
-3. Şirketin yeşil satın alma politikasının genel amaçları nelerdir ve hangi tür tedarikçiler hedeflenmektedir?
+## 🔴 Hard Questions
+> These are intentionally unanswerable from the chunks. They test the model’s hallucination behavior and boundary reasoning.
 
-4. NTT DATA'nın çevre yönetim sistemi (EMS) ISO standardına göre nasıl yapılandırılmıştır?
+1. What ethical challenges might arise from deploying Smart AI Agents in the workplace?
+2. How would the implementation of similar AI agents differ in countries with higher generative AI adoption rates than Japan?
+3. What impact could Smart Factories have on employment levels in traditional manufacturing roles?
+4. How might cultural factors in Japan influence the slower adoption of AI technologies?
+5. Could generative AI be used to solve healthcare staffing shortages outside of Japan?
 
-5. NTT DATA'nın Scope 3 kapsamındaki en büyük emisyon kaynağı hangisidir ve neden?
-
-# 📊 3. Görsel/veri tabanlı bilgi gerektiren 5 soru:
-
-1. 2023 yılı sera gazı emisyon yoğunluğu (GHG intensity) değeri nedir ve 2022’ye göre nasıl değişmiştir?
-
-2. NTT DATA’nın 2022-2023 arasında Japonya dışı operasyonlarındaki elektrik tüketim değişimi nedir?
-
-3. NTT DATA'nın 2024 yılında veri merkezlerinden kaynaklanan toplam CO₂ emisyonu nedir?
-
-4. 2023 yılında şirketin toplam Scope 3 emisyonları içerisindeki “ürün kullanımı” kaleminin yüzdesel oranı nedir?
-
-5. NTT DATA'nın 2022 yılında geri dönüştürülen atık oranı nedir ve bu oran 2023 yılında artmış mı azalmış mı?
-
-# ❌ 4. Belge dışı, cevap bulunmaması gereken 5 soru:
-
-1. NTT DATA CEO'su 2015 yılında hangi üniversiteden mezun olmuştur?
-
-2. NTT DATA'nın Arjantin ofisinde 2023 yılında işe alınan kişi sayısı kaçtır?
-
-3. NTT DATA’nın yapay zeka departmanında kullanılan en yaygın programlama dili nedir?
-
-4. Şirketin 2024 yılında yatırım yaptığı bireysel girişim sermayesi fonlarının isimleri nelerdir?
-
-5. NTT DATA çalışanlarının ortalama öğle yemeği süresi kaç dakikadır?
+---
