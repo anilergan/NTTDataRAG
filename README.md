@@ -165,6 +165,16 @@ poetry add --dev pytest
 poetry run pytest
 ```
 
+## 📐 Architecture Diagram
+
+graph TD
+    A("PDF Reports") --> B("Chunking by Template / Span Analysis")
+    B --> C("OpenAI Embeddings")
+    C --> D("FAISS Indexing")
+    D --> E("Query via CLI or API")
+    E --> F("GPT-4o Answer Generation")
+
+
 ## 📚 Sources
 
 This project was developed for a case study on document understanding and retrieval using OpenAI technologies and complex business PDFs from NTT Data.
