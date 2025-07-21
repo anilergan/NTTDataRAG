@@ -47,7 +47,7 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/anilergan/nttdatarag.git
+git clone https://github.com/anilergan/NTTDataRAG.git
 cd nttdatarag
 
 # Install dependencies via Poetry
@@ -164,21 +164,6 @@ docker run --env-file .env -p 8000:8000 ntt-rag
 poetry add --dev pytest
 poetry run pytest
 ```
-
----
-
-## 📐 Architecture Diagram
-
-```mermaid
-graph TD
-    A[PDF Reports] --> B[Chunking by Template]
-    B --> C[OpenAI Embeddings]
-    C --> D[FAISS Indexing]
-    D --> E[Query (CLI or API)]
-    E --> F[GPT-4o Answer Generation]
-```
-
----
 
 ## 📚 Sources
 
