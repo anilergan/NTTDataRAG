@@ -1,6 +1,10 @@
+import os
+
 import fitz  # PyMuPDF
 from PIL import Image, ImageDraw, ImageFont
-import os 
+
+from config import SECTION_COORDINATES_DICT_PDF_2022, SECTION_COORDINATES_DICT_PDF_2023
+
 
 def draw_section_boxes_on_pdf_page(pdf_path, page_index, section_coordinates_dict):
     """
@@ -11,20 +15,19 @@ def draw_section_boxes_on_pdf_page(pdf_path, page_index, section_coordinates_dic
     """
     # 🎨 Pastel renkler (RGB) — 8 adet
     pastel_colors = [
-        (35, 87, 188), 
-        (251,180,15),
+        (35, 87, 188),
+        (251, 180, 15),
         (213, 33, 39),
         (47, 187, 179),
         (115, 59, 151),
         (7, 177, 81),
         (243, 102, 33),
         (76, 72, 155),
-        
     ]
 
     doc = fitz.open(pdf_path)
     page = doc[page_index - 1]
-    
+
     # PDF sayfasını görüntü olarak al
     pix = page.get_pixmap(dpi=150)
     img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
@@ -37,12 +40,14 @@ def draw_section_boxes_on_pdf_page(pdf_path, page_index, section_coordinates_dic
         font = ImageFont.load_default()
 
     # Kutuları çiz
-    for idx, (section_name, (top_left, bottom_right)) in enumerate(section_coordinates_dict.items()):
+    for idx, (section_name, (top_left, bottom_right)) in enumerate(
+        section_coordinates_dict.items()
+    ):
         x0, y0 = top_left
         x1, y1 = bottom_right
 
         color = pastel_colors[idx % len(pastel_colors)]
-        fill_color = (*color, 25)   # %10 opacity
+        fill_color = (*color, 25)  # %10 opacity
         border_color = (*color, 255)
 
         # Dikdörtgen çiz (dolgu + border)
@@ -54,21 +59,14 @@ def draw_section_boxes_on_pdf_page(pdf_path, page_index, section_coordinates_dic
 
     # ✅ Dosya adını otomatik belirle
     base_filename = os.path.basename(pdf_path).replace(".pdf", "")
-    output_path = f"{base_filename}_page{page_index}_sections.jpg"
+    output_path = f"section_boxes/{base_filename}_page{page_index}_sections.jpg"
     img.save(output_path)
     print(f"✅ Saved marked page to: {output_path}")
 
 
 if __name__ == "__main__":
     draw_section_boxes_on_pdf_page(
-        pdf_path="data/raw/sr_2023_cb_v.pdf",
-        page_index=6,  
-        section_coordinates_dict={
-            "main_title_of_page": ((40, 115), (338, 270)),
-            "main_subtitle_of_page": ((350, 115), (1500, 270)),
-            "social_issues": ((250, 270), (1500, 420)),
-            "substance_1": ((40, 425), (595, 1180)),
-            "substance_2": ((605, 425), (1220, 1180)),
-            "key_metrics": ((1225, 425), (1740, 1180)),
-        }
+        pdf_path=r"data\raw\sr_2023_cb_v.pdf",
+        page_index=17,
+        section_coordinates_dict=SECTION_COORDINATES_DICT_PDF_2023,
     )

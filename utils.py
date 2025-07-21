@@ -3,17 +3,20 @@ import re
 
 def clean_text(text: str) -> str:
     """Remove excessive whitespace and newlines from the input text."""
-    return re.sub(r'\s*\n\s*', ' ', text).strip()
+    return re.sub(r"\s*\n\s*", " ", text).strip()
+
 
 def is_wide_block(block, page_width):
     """Check if the block spans more than 70% of the page width."""
     x0, y0, x1, y1 = block[:4]
     return (x1 - x0) > 0.7 * page_width
 
+
 def is_bottom_block(block, page_height):
     """Determine whether the block is located near the bottom of the page."""
     y0 = block[1]
     return y0 > 0.7 * page_height
+
 
 def extract_section(SECTION_HEADERS, header, all_blocks, content_blocks=None):
     """
@@ -37,8 +40,7 @@ def extract_section(SECTION_HEADERS, header, all_blocks, content_blocks=None):
         if found and block in content_blocks:
             content.append(text)
 
-    return ' '.join(content).strip() if content else None
-
+    return " ".join(content).strip() if content else None
 
 
 def detect_impact_layout_type(layout_blocks):
@@ -52,6 +54,7 @@ def detect_impact_layout_type(layout_blocks):
         return "inline_block", layout_blocks["col_2"] + layout_blocks["col_3"]
     else:
         return "col_1_block", layout_blocks["col_1"]
+
 
 def extract_highlight_metrics(page):
     """Extract prominent bold metrics in the 'Impact' section, based on font size and style."""
@@ -72,14 +75,11 @@ def extract_highlight_metrics(page):
                     continue
 
                 # 🔥 Yeni kriter: Arial-BoldMT, font size 16–18, siyah (color=0)
-                if (
-                    font == "Arial-BoldMT"
-                    and 16.0 <= size <= 20.0
-                    and color == 0
-                ):
+                if font == "Arial-BoldMT" and 16.0 <= size <= 20.0 and color == 0:
                     metrics_found.add(text)
 
     return metrics_found
+
 
 def analyze_global_metrics(page, page_label):
     """Print bold texts that may represent key metrics for manual inspection."""
@@ -110,11 +110,7 @@ def analyze_global_metrics(page, page_label):
             print(f"→ {metric}")
         print("")  # boşluk
 
+
 def extract_impact_notes(impact_region):
     """Extract small-font note texts under the 'Impact' section."""
-    return [
-        clean_text(b[4]) for b in impact_region
-        if b[5] < 9 and len(b[4]) > 20
-    ]
-
-
+    return [clean_text(b[4]) for b in impact_region if b[5] < 9 and len(b[4]) > 20]
