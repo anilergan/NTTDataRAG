@@ -1,4 +1,38 @@
+# ✅ Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+# ✅ Env & Secrets
 .env
-db/
-*.jsonl
-*.jpg
+*.env
+
+# ✅ Logs
+logs/
+*.log
+
+# ✅ Data outputs
+data/embeddings.jsonl
+data/merged_chunks.jsonl
+data/faiss_index.*
+data/chunks/*.jsonl
+
+# ✅ Section visualizations
+section_boxes/*.jpg
+
+# ✅ IDE / Editor
+.vscode/
+.idea/
+
+# ✅ OS
+.DS_Store
+Thumbs.db
+
+# ✅ Jupyter Notebook Checkpoints (if any)
+.ipynb_checkpoints/
+
+# ✅ Docker
+*.tar
