@@ -47,7 +47,7 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/your-org/nttdatarag.git
+git clone https://github.com/anilergan/nttdatarag.git
 cd nttdatarag
 
 # Install dependencies via Poetry
