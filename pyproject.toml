@@ -21,8 +21,12 @@ dependencies = [
     "uvicorn (>=0.35.0,<0.36.0)",
     "fastapi (>=0.116.1,<0.117.0)",
     "pydantic (>=2.11.7,<3.0.0)",
+    "pytest (>=8.4.1,<9.0.0)",
 ]
 
+# pytest.ini
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

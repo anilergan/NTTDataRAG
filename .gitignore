@@ -5,6 +5,7 @@ __pycache__/
 *.pyd
 *.so
 *.egg-info/
+.pytest_cache/
 
 # ✅ Env & Secrets
 .env
@@ -13,6 +14,9 @@ __pycache__/
 # ✅ Logs
 logs/
 *.log
+
+# pytest logs exception
+!tests/test_output.log
 
 # ✅ Data outputs
 data/embeddings.jsonl
