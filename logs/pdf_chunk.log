@@ -1,8 +1,0 @@
-[2025-07-22 03:10:43] [ERROR] Failed to open PDF `data/raw/sr_2023_cb_v.pdf`: no such file: 'data/raw/sr_2023_cb_v.pdf'
-Traceback (most recent call last):
-  File "C:\Users\asus\OneDrive\Documents\Code\NTTDataRAG\src\pdf_chunker_by_template.py", line 26, in extract_chunks_by_template
-    doc = fitz.open(pdf_path)
-          ^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\asus\AppData\Local\pypoetry\Cache\virtualenvs\nttdatarag-YI5M5Tug-py3.11\Lib\site-packages\pymupdf\__init__.py", line 2957, in __init__
-    raise FileNotFoundError(f"no such file: '{filename}'")
-pymupdf.FileNotFoundError: no such file: 'data/raw/sr_2023_cb_v.pdf'

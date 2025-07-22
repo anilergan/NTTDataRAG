@@ -7,25 +7,50 @@
 ## 🗂 Project Structure
 
 ```
-├── app.py                    # FastAPI app (RESTful API: /ask, /health)
-├── rag_pipeline.py          # Main pipeline (chunk → embed → index → QA)
-├── query.py                 # CLI-based interactive Q&A
-├── retriever.py             # FAISS indexing logic
-├── embedding.py             # OpenAI embedding operations
-├── pdf_chunker_*.py         # Custom PDF chunkers by year & layout
-├── merge_chunks.py          # Merge multiple .jsonl chunk files
-├── utils.py                 # Shared utilities
-├── config.py                # Page ranges and coordinates for chunking
-├── Dockerfile               # Containerization setup
-├── .env                     # OpenAI API Key
-├── data/
-│   ├── raw/                 # Source PDFs
-│   ├── chunks/              # Chunked content (jsonl)
-│   ├── merged_chunks.jsonl  # Aggregated chunks for QA
-│   ├── embeddings.jsonl     # Embedded vector data
-│   └── faiss_index.faiss    # FAISS search index
-├── logs/                    # Logs for debugging and QA
-└── section_boxes/           # Visual debugging utilities for bounding boxes
+NTTDATARAG/
+├── .pytest_cache/                  # pytest's internal cache (ignored)
+├── case/                           # Case study presentation and materials
+├── img/                            # Images (diagrams, architecture, README assets)
+│
+├── src/                            # Main application source code
+│   ├── __pycache__/                # Python bytecode cache (ignored)
+│   ├── data/                       # Persistent data (chunks, embeddings, FAISS index)
+│   │   └── ...                     # e.g., chunks/, embeddings.jsonl, faiss_index.faiss
+│   ├── logs/                       # Runtime logs and QA logs
+│   ├── section_boxes/             # Bounding box visualization tools
+│   │   ├── draw_page_section_boxes.py  # Draws labeled sections on PDF pages
+│   │   └── utils.py                    # Helper functions for visual debugging
+│   ├── app.py                      # (Optional) FastAPI app for serving endpoints
+│   ├── config.py                   # Page ranges and coordinates for chunk extraction
+│   ├── embedding.py                # Embedding logic using OpenAI API
+│   ├── logger.py                   # Custom logging setup
+│   ├── merge_chunks.py             # Merges multiple chunk `.jsonl` files
+│   ├── pdf_2020_chunker_by_span_analysis.py  # Year-specific chunker (2020 format)
+│   ├── pdf_2024_chunker_by_span_analysis.py  # Year-specific chunker (2024 format)
+│   ├── pdf_chunker_by_template.py       # Template-based PDF chunking logic
+│   ├── pdf_span_analyser.py             # Font, size, color and bbox analysis on spans
+│   ├── query.py                   # CLI-based interactive Q&A interface
+│   ├── rag_pipeline.py            # Full pipeline: chunk → embed → index → QA
+│   ├── retriever.py               # FAISS indexing and similarity retrieval
+│   └── split_double_pages_pdfs.py       # Splits 2-in-1 scanned PDF pages in half
+│
+├── tests/                          # Pytest unit tests
+│   ├── __pycache__/                # Bytecode cache for tests (ignored)
+│   ├── test_chunker.py             # Tests for chunking logic
+│   ├── test_embedding.py           # Tests for embedding output and shape
+│   ├── test_output.log             # Saved output from latest test run (optional)
+│   └── test_retriever.py           # Tests for FAISS indexing and retrieval
+│
+├── .gitignore                      # Git ignore rules
+├── .dockerignore                   # Ignore rules for Docker builds
+├── Dockerfile                      # Docker image setup and build instructions
+├── .env                            # Environment variables (e.g., OpenAI API key)
+├── pyproject.toml                  # Poetry project config (dependencies, pytest options)
+├── poetry.lock                     # Locked dependency versions for reproducibility
+├── README.md                       # Project overview, instructions, diagrams
+├── QATEST.md                       # QA checklist and test cases
+└── TODO.md                         # Technical tasks and future improvements
+
 ```
 
 ---
@@ -33,9 +58,9 @@
 ## 🚀 Features
 
 - 📄 **Custom PDF Chunking**: Layout-aware chunking tailored for multi-column business reports
-- 🧠 **OpenAI Embeddings**: `text-embedding-3-small` or `text-embedding-3-large` support
+- 🧠 **OpenAI Embeddings**: `text-embedding-3-small` support
 - 🔍 **Semantic Search**: FAISS-based vector similarity retrieval
-- 💬 **Natural Language QA**: GPT-4o model answering contextually
+- 💬 **Natural Language QA**: GPT-4o model (gpt-4o-mini) answering contextually
 - 🌐 **API Access**: Query the system via REST with FastAPI
 - 🐳 **Dockerized**: Fully containerized for portable deployment
 
@@ -158,11 +183,18 @@ docker run --env-file .env -p 8000:8000 ntt-rag
 
 ## 🧪 Testing
 
-> (Optional enhancement) Add tests in a `tests/` directory using `pytest`.
+```
+├── test_chunker.py             # Tests for chunking logic
+├── test_embedding.py           # Tests for embedding output and shape
+├── test_output.log             # Saved output from latest test run (optional)
+└── test_retriever.py           # Tests for FAISS indexing and retrieval
+```
 
 ```bash
 poetry add --dev pytest
-poetry run pytest
+poetry run pytest tests/
+# In order to get log outputs for tests:
+poetry run pytest tests/ -v | tee tests/test_output.log
 ```
 
 ## 📐 Architecture Diagram
