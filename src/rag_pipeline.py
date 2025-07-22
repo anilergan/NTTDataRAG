@@ -17,7 +17,7 @@ from src.query import interactive_qa_loop
 from src.retriever import build_and_save
 
 # --- CONFIGURATION (adjust per‐PDF) ---
-PDF_PATH = "data/raw/sr_2020_cb_p.pdf"
+PDF_PATH = "src/data/raw/sr_2020_cb_p.pdf"
 
 PAGES_TO_USE = list(range(6, 16)) + list(range(17, 28)) + list(range(29, 36))
 SECTION_COORDINATES_DICT = {
@@ -30,10 +30,10 @@ SECTION_COORDINATES_DICT = {
 }
 
 # --- PATHS ---
-CHUNKS_JSONL = "data/chunks/merged_chunks.jsonl"
-EMBEDDINGS_JSONL = "data/embeddings.jsonl"
-FAISS_INDEX = "data/faiss_index.faiss"
-LOG_PATH = "logs/QA.log"
+CHUNKS_JSONL = "src/data/chunks/merged_chunks.jsonl"
+EMBEDDINGS_JSONL = "src/data/embeddings.jsonl"
+FAISS_INDEX = "src/data/faiss_index.faiss"
+LOG_PATH = "src/logs/QA.log"
 
 # --- Setup ---
 load_dotenv()

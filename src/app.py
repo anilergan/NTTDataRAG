@@ -17,8 +17,8 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_api_key)
 
-CHUNKS_PATH = "data/merged_chunks.jsonl"
-INDEX_PATH = "data/faiss_index.faiss"
+CHUNKS_PATH = "src/data/merged_chunks.jsonl"
+INDEX_PATH = "src/data/faiss_index.faiss"
 
 # === FastAPI nesnesi ===
 app = FastAPI(title="NTT RAG Pipeline API")

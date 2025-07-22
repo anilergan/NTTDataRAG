@@ -71,14 +71,31 @@ NTTDATARAG/
 > Python 3.11+, Poetry is required.
 
 ```bash
-# Clone and install
+# 📥 Clone the repository
 git clone https://github.com/anilergan/NTTDataRAG.git
 cd nttdatarag
 
-# Install dependencies via Poetry
+# ⚙️ OPTION 1: Install with Poetry (Recommended)
+
+# If Poetry is not installed, run:
+curl -sSL https://install.python-poetry.org | python3 -
+
+# (Optional) Add Poetry to PATH if needed:
+export PATH="$HOME/.local/bin:$PATH"
+
+# Then install dependencies
 poetry install
 
-# Create a `.env` file with your OpenAI key
+
+# ⚙️ OPTION 2: Install with pip (If you don't want to use Poetry)
+
+# If you see a 'requirements.txt' file, install it like this:
+pip install -r requirements.txt
+
+# Or, if you’re the maintainer, generate it from Poetry first:
+# poetry export --without-hashes -f requirements.txt > requirements.txt
+
+# 🔐 Create a `.env` file with your OpenAI key
 echo "OPENAI_API_KEY=sk-..." > .env
 ```
 ---

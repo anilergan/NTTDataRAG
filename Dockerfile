@@ -25,7 +25,7 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # 9. Başlatıcı komut (FastAPI uvicorn server)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # docker build -t ntt-rag .
-# docker run -p 8000:8000 --env-file .env ntt-rag
+# docker run -p 8000:8000 --env-file .env --rm ntt-rag
